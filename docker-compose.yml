@@ -27,6 +27,25 @@ services:
       - ${CONFIG_DIR}/plex:/config
       - ${MEDIA_DIR}:/disks/hdd0
 
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - WEBUI_PORT=${QBIT_WEBUI_PORT}
+      - TORRENTING_PORT=${QBIT_CONNECTION_PORT}
+    volumes:
+      - ${CONFIG_DIR}/qbittorrent:/config
+      - ${DOWNLOAD_DIR}:/downloads
+      - ${MEDIA_DIR}:/media
+    ports:
+      - ${QBIT_WEBUI_PORT}:${QBIT_WEBUI_PORT}
+      - ${QBIT_CONNECTION_PORT}:${QBIT_CONNECTION_PORT}
+      - ${QBIT_CONNECTION_PORT}:${QBIT_CONNECTION_PORT}/udp
+    restart: unless-stopped
+
   # Example on how to specify a env file and reuse it across services
   # base:
   #   env_file:
