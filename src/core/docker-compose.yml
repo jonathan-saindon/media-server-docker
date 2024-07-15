@@ -1,0 +1,70 @@
+services:
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    restart: unless-stopped
+    ports:
+      - "${PLEX_WEB_PORT}:32400"
+    #   - "1900:1900"
+    #   - "3005:3005"
+    #   - "5353:5353"
+    #   - "8324:8324"
+    #   - "32410:32410"
+    #   - "32412:32412"
+    #   - "32413:32413"
+    #   - "32414:32414"
+    #   - "32469:32469"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM}
+      # - PLUGIN_LIST=${PLUGIN_LIST}
+    volumes:
+      - ${CONFIG_DIR}/plex:/config
+      - ${MEDIA_DIR}:/disks/hdd0
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - WEBUI_PORT=${QBIT_WEBUI_PORT}
+      - TORRENTING_PORT=${QBIT_CONNECTION_PORT}
+    volumes:
+      - ${CONFIG_DIR}/qbittorrent:/config
+      - ${DOWNLOAD_DIR}:/downloads
+      - ${MEDIA_DIR}:/media
+    ports:
+      - ${QBIT_WEBUI_PORT}:${QBIT_WEBUI_PORT}
+      - ${QBIT_CONNECTION_PORT}:${QBIT_CONNECTION_PORT}
+      - ${QBIT_CONNECTION_PORT}:${QBIT_CONNECTION_PORT}/udp
+    restart: unless-stopped
+
+  filebot:
+    image: rednoah/filebot:latest
+    container_name: filebot
+    restart: always
+    ports:
+      - "${FILEBOT_PORT}:${FILEBOT_PORT}"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - FILEBOT_PORT=${FILEBOT_PORT}
+      - FILEBOT_FORMAT=${FILEBOT_FORMAT}
+      - FILEBOT_FILTER=${FILEBOT_FILTER}
+      - FILEBOT_ACTION=${FILEBOT_ACTION}
+      - FILEBOT_CONFLICT=${FILEBOT_CONFLICT}
+      - FILEBOT_SERIES_DB=${FILEBOT_SERIES_DB}
+      - FILEBOT_ANIME_DB=${FILEBOT_ANIME_DB}
+      - FILEBOT_MOVIE_DB=${FILEBOT_MOVIE_DB}
+      - FILEBOT_MUSIC_DB=${FILEBOT_MUSIC_DB}
+    volumes:
+      - ${CONFIG_DIR}/filebot:/config
+      - ${DOWNLOAD_DIR}:/downloads
+      - ${MEDIA_DIR}:/media
+      - ${BASE_DIR}:/share

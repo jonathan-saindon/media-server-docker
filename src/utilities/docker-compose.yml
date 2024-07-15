@@ -1,0 +1,105 @@
+services:
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    container_name: tautulli
+    restart: always
+    ports:
+      - "${TAUTULLI_PORT}:8181"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_DIR}/tautulli:/config
+      - "${CONFIG_DIR}/plex/Library/Application Support/Plex Media Server/Logs:/logs:ro"
+
+  # heimdall:
+  #   image: lscr.io/linuxserver/heimdall:latest
+  #   container_name: heimdall
+  #   restart: always
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #   ports:
+  #     - "${HEIMDALL_PORT}:80"
+  #     - "${HEIMDALL_SSL_PORT}:443"
+  #   volumes:
+  #     - ${CONFIG_DIR}/heimdall:/config
+
+  # letsencrypt:
+  #   image: lscr.io/linuxserver/letsencrypt:latest
+  #   container_name: letsencrypt
+  #   ports:
+  #     - "443:443"
+  #     - "80:80"
+  #   volumes:
+  #     - ${CONFIG_DIR}/letsencrypt:/config
+  #   restart: always
+  #   depends_on:
+  #     - sonarr
+  #     - radarr
+  #     - bazarr
+  #     - nzbget
+  #     - transmission
+  #     - plex
+  #     - tautulli
+  #     - netdata
+  #     - heimdall
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #     - EMAIL=${LE_EMAIL}
+  #     - URL=${LE_HOSTNAME}
+  #     - SUBDOMAINS=${LE_SUBDOMAINS}
+  #     - NGINX_USER=${NGINX_USER}
+  #     - NGINX_PASS=${NGINX_PASS}
+
+  # netdata:
+  #   image: netdata/netdata
+  #   container_name: netdata
+  #   hostname: ${LE_HOSTNAME}
+  #   ports:
+  #     - "${NETDATA_PORT}:19999"
+  #   cap_add:
+  #     - SYS_PTRACE
+  #   security_opt:
+  #     - apparmor:unconfined
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #   volumes:
+  #     - /proc:/host/proc:ro
+  #     - /sys:/host/sys:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:rw
+
+  # ddclient:
+  #   image: lscr.io/linuxserver/ddclient:latest
+  #   container_name: ddclient
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #   volumes:
+  #     - ${CONFIG_DIR}/ddclient:/config
+  #   restart: always
+
+  # portainer:
+  #   image: portainer/portainer-ce
+  #   container_name: portainer
+  #   restart: always
+  #   ports:
+  #     - "${PORTAINER_PORT}:9000"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ${CONFIG_DIR}/portainer:/data
+
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: watchtower
+  #   command: --cleanup
+  #   restart: always
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock

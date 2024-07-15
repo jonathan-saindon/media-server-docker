@@ -1,0 +1,192 @@
+services:
+  filebot:
+    image: lscr.io/linuxserver/filebot:4.9.x:latest
+    container_name: filebot
+    restart: always
+    ports:
+      - "${FILEBOT_PORT}:${FILEBOT_PORT}"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - FILEBOT_PORT=${FILEBOT_PORT}
+      - FILEBOT_FORMAT=${FILEBOT_FORMAT}
+      - FILEBOT_FILTER=${FILEBOT_FILTER}
+      - FILEBOT_ACTION=${FILEBOT_ACTION}
+      - FILEBOT_CONFLICT=${FILEBOT_CONFLICT}
+      - FILEBOT_SERIES_DB=${FILEBOT_SERIES_DB}
+      - FILEBOT_ANIME_DB=${FILEBOT_ANIME_DB}
+      - FILEBOT_MOVIE_DB=${FILEBOT_MOVIE_DB}
+      - FILEBOT_MUSIC_DB=${FILEBOT_MUSIC_DB}
+      - OPEN_SUB_USER=${OPEN_SUB_USER}
+      - OPEN_SUB_PASS=${OPEN_SUB_PASS}
+    volumes:
+      - ${CONFIG_DIR}/filebot:/config
+      - ${DOWNLOAD_DIR}:/downloads
+      - ${MEDIA_DIR}:/media
+      - ${BASE_DIR}:/share
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: always
+    ports:
+      - "${SONARR_PORT}:8989"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_DIR}/sonarr:/config
+      - ${DOWNLOAD_DIR}:/data/completed/tv/
+      - ${TV_DIR}:/tv
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: always
+    ports:
+      - "${RADARR_PORT}:7878"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_DIR}/radarr:/config
+      - ${DOWNLOAD_DIR}:/data/completed/movies/
+      - ${MOVIES_DIR}:/movies
+
+  # bazarr:
+  #   image: lscr.io/linuxserver/bazarr:latest
+  #   container_name: bazarr
+  #   restart: always
+  #   ports:
+  #     - "${BAZARR_PORT}:6767"
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #   volumes:
+  #     - ${CONFIG_DIR}/bazarr:/config
+  #     - ${TV_DIR}:/tv
+  #     - ${MOVIES_DIR}:/movies
+
+  # jackett:
+  #   image: lscr.io/linuxserver/jackett:latest
+  #   container_name: jackett
+  #   restart: always
+  #   ports:
+  #     - "${JACKETT_PORT}:9117"
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #     - JACKETT_KEY=0000
+  #   volumes:
+  #     - ${CONFIG_DIR}/jackett:/config
+  #     - ${CONFIG_DIR}/jackett/downloads:/downloads
+
+  # tautulli:
+  #   image: lscr.io/linuxserver/tautulli:latest
+  #   container_name: tautulli
+  #   restart: always
+  #   ports:
+  #     - "${TAUTULLI_PORT}:8181"
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #   volumes:
+  #     - ${CONFIG_DIR}/tautulli:/config
+  #     - "${CONFIG_DIR}/plex/Library/Application Support/Plex Media Server/Logs:/logs:ro"
+
+  # heimdall:
+  #   image: lscr.io/linuxserver/heimdall:latest
+  #   container_name: heimdall
+  #   restart: always
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #   ports:
+  #     - "${HEIMDALL_PORT}:80"
+  #     - "${HEIMDALL_SSL_PORT}:443"
+  #   volumes:
+  #     - ${CONFIG_DIR}/heimdall:/config
+
+  # letsencrypt:
+  #   image: lscr.io/linuxserver/letsencrypt:latest
+  #   container_name: letsencrypt
+  #   ports:
+  #     - "443:443"
+  #     - "80:80"
+  #   volumes:
+  #     - ${CONFIG_DIR}/letsencrypt:/config
+  #   restart: always
+  #   depends_on:
+  #     - sonarr
+  #     - radarr
+  #     - bazarr
+  #     - nzbget
+  #     - transmission
+  #     - plex
+  #     - tautulli
+  #     - netdata
+  #     - heimdall
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #     - EMAIL=${LE_EMAIL}
+  #     - URL=${LE_HOSTNAME}
+  #     - SUBDOMAINS=${LE_SUBDOMAINS}
+  #     - NGINX_USER=${NGINX_USER}
+  #     - NGINX_PASS=${NGINX_PASS}
+
+  # netdata:
+  #   image: netdata/netdata
+  #   container_name: netdata
+  #   hostname: ${LE_HOSTNAME}
+  #   ports:
+  #     - "${NETDATA_PORT}:19999"
+  #   cap_add:
+  #     - SYS_PTRACE
+  #   security_opt:
+  #     - apparmor:unconfined
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #   volumes:
+  #     - /proc:/host/proc:ro
+  #     - /sys:/host/sys:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:rw
+
+  # ddclient:
+  #   image: lscr.io/linuxserver/ddclient:latest
+  #   container_name: ddclient
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TIMEZONE}
+  #   volumes:
+  #     - ${CONFIG_DIR}/ddclient:/config
+  #   restart: always
+
+  # portainer:
+  #   image: portainer/portainer-ce
+  #   container_name: portainer
+  #   restart: always
+  #   ports:
+  #     - "${PORTAINER_PORT}:9000"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ${CONFIG_DIR}/portainer:/data
+
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: watchtower
+  #   command: --cleanup
+  #   restart: always
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
